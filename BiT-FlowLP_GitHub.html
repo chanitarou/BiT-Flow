@@ -1,0 +1,2838 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BiT-Flow - 業務改革を加速する生成AI活用型業務フロー可視化サービス</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        :root {
+            --primary: #0a2e67;
+            --primary-light: #1c4788;
+            --secondary: #ff6b00;
+            --secondary-light: #ff8f3e;
+            --accent: #00c2ff;
+            --light: #f8faff;
+            --dark: #1a1a2e;
+            --gray: #4a5568;
+            --light-gray: #f0f4f8;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', Meiryo, sans-serif;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .mb-sm {
+            margin-bottom: 15px;
+        }
+        
+        .mb-md {
+            margin-bottom: 30px;
+        }
+        
+        .mb-lg {
+            margin-bottom: 60px;
+        }
+        
+        .text-bold {
+            font-weight: 700;
+        }
+        
+        .text-primary {
+            color: var(--primary);
+        }
+        
+        .text-secondary {
+            color: var(--secondary);
+        }
+        
+        .text-accent {
+            color: var(--accent);
+        }
+        
+        .hidden {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        
+        .show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 16px 32px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-light);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(255, 107, 0, 0.2);
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(10, 46, 103, 0.2);
+        }
+        
+        .btn-lg {
+            padding: 18px 40px;
+            font-size: 1.2rem;
+        }
+        
+        /* ナビゲーション */
+        .nav-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-scrolled {
+            padding: 10px 0;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-highlight {
+            color: var(--accent);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+        
+        .nav-link {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--accent);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary);
+        }
+        
+        .nav-link:hover:after {
+            width: 100%;
+        }
+        
+        .nav-cta {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+        }
+        
+        /* ヒーローセクション */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 180px 0 100px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('/api/placeholder/800/600') no-repeat center center;
+            background-size: cover;
+            opacity: 0.08;
+        }
+        
+        .hero-content {
+            max-width: 850px;
+            margin: 0 auto;
+            position: relative;
+            text-align: center;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            line-height: 1.2;
+            margin-bottom: 30px;
+            font-weight: 800;
+        }
+        
+        .hero-title span {
+            color: var(--secondary);
+        }
+        
+        .hero-description {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 80px;
+            margin-top: 50px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+        
+        .stat-text {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* 課題セクション */
+        .problems {
+            padding: 100px 0;
+            position: relative;
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--primary);
+            font-weight: 800;
+        }
+        
+        .section-subtitle {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 60px;
+            text-align: center;
+            color: var(--gray);
+        }
+        
+        .problems-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+        }
+        
+        .problem-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 40px 30px;
+            width: 350px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .problem-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .problem-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background-color: var(--secondary);
+        }
+        
+        .problem-icon {
+            font-size: 2.5rem;
+            color: var(--secondary);
+            margin-bottom: 25px;
+        }
+        
+        .problem-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+        
+        .problem-text {
+            color: var(--gray);
+            margin-bottom: 25px;
+        }
+        
+        .problem-stat {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+        
+        .problem-stat span {
+            color: var(--secondary);
+        }
+        
+        /* ソリューションセクション */
+        .solution {
+            background-color: var(--primary);
+            color: white;
+            padding: 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .solution::after {
+            content: '';
+            position: absolute;
+            bottom: -60%;
+            right: -10%;
+            width: 80%;
+            height: 180%;
+            background: radial-gradient(circle, rgba(0,194,255,0.3) 0%, rgba(10,46,103,0) 70%);
+            border-radius: 50%;
+        }
+        
+        .solution-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 800;
+        }
+        
+        .solution-subtitle {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 60px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .solution-highlight {
+            color: var(--secondary);
+            font-weight: 700;
+        }
+        
+        .solution-highlight-2 {
+            color: var(--accent);
+            font-weight: 700;
+        }
+        
+        .solution-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .solution-card {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .solution-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .solution-card-icon {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 25px;
+        }
+        
+        .solution-card-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .solution-card-text {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* 比較セクション */
+        .comparison {
+            padding: 100px 0;
+            background-color: var(--light);
+            position: relative;
+        }
+        
+        .comparison-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--primary);
+            font-weight: 800;
+        }
+        
+        .comparison-subtitle {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 60px;
+            text-align: center;
+            color: var(--gray);
+        }
+        
+        .comparison-table-wrapper {
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin-bottom: 50px;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .comparison-table th, 
+        .comparison-table td {
+            padding: 25px 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .comparison-table th {
+            background-color: var(--primary);
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        
+        .comparison-table th:first-child {
+            background-color: white;
+            color: var(--primary);
+            text-align: left;
+            width: 200px;
+        }
+        
+        .comparison-table tbody tr:nth-child(even) {
+            background-color: var(--light-gray);
+        }
+        
+        .comparison-table tbody tr:nth-child(odd) {
+            background-color: white;
+        }
+        
+        .comparison-table tbody tr:hover {
+            background-color: rgba(0, 194, 255, 0.05);
+        }
+        
+        .comparison-table tbody tr td:first-child {
+            text-align: left;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .bit-flow-col {
+            background-color: rgba(10, 46, 103, 0.03);
+            position: relative;
+        }
+        
+        .bit-flow-col::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--secondary);
+        }
+        
+        .bit-flow-highlight {
+            font-weight: 700;
+            color: var(--secondary);
+            font-size: 1.2rem;
+        }
+        
+        .competitor-text {
+            color: var(--gray);
+        }
+        
+        .comparison-icon {
+            font-size: 1.5rem;
+            margin-right: 5px;
+        }
+        
+        .good-icon {
+            color: var(--secondary);
+        }
+        
+        .bad-icon {
+            color: #e53e3e;
+        }
+        
+        .neutral-icon {
+            color: #718096;
+        }
+        
+        .comparison-note {
+            text-align: right;
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-top: 15px;
+        }
+        
+        .roi-calculation {
+            background-color: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            margin-top: 60px;
+        }
+        
+        .roi-title {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+        
+        .roi-stats {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 50px;
+        }
+        
+        .roi-stat {
+            text-align: center;
+        }
+        
+        .roi-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+        
+        .roi-text {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+        
+        /* プロセスセクション */
+        .process {
+            padding: 100px 0;
+            background-color: white;
+            position: relative;
+        }
+        
+        .process-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--primary);
+            font-weight: 800;
+        }
+        
+        .process-subtitle {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 80px;
+            text-align: center;
+            color: var(--gray);
+        }
+        
+        .process-steps {
+            position: relative;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        
+        .process-step {
+            display: flex;
+            margin-bottom: 100px;
+            position: relative;
+        }
+        
+        .process-step:last-child {
+            margin-bottom: 0;
+        }
+        
+        .process-step::after {
+            content: '';
+            position: absolute;
+            top: 70px;
+            left: 35px;
+            width: 2px;
+            height: calc(100% + 30px);
+            background-color: var(--light-gray);
+            z-index: 1;
+        }
+        
+        .process-step:last-child::after {
+            display: none;
+        }
+        
+        .process-step-number {
+            width: 70px;
+            height: 70px;
+            background-color: var(--primary);
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-right: 40px;
+            position: relative;
+            z-index: 2;
+            flex-shrink: 0;
+        }
+        
+        .process-step:nth-child(2) .process-step-number {
+            background-color: var(--secondary);
+        }
+        
+        .process-step-content {
+            background-color: var(--light);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            flex-grow: 1;
+        }
+        
+        .process-step:nth-child(2) .process-step-content {
+            background-color: rgba(255, 107, 0, 0.05);
+            border: 1px solid rgba(255, 107, 0, 0.1);
+        }
+        
+        .process-step-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .process-step:nth-child(2) .process-step-title {
+            color: var(--secondary);
+        }
+        
+        .process-step-text {
+            color: var(--gray);
+            margin-bottom: 20px;
+        }
+        
+        .process-step-list {
+            list-style: none;
+        }
+        
+        .process-step-list li {
+            margin-bottom: 10px;
+            padding-left: 30px;
+            position: relative;
+        }
+        
+        .process-step-list li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+        }
+        
+        /* アウトプット例セクション */
+        .output-examples {
+            padding: 100px 0;
+            background-color: var(--light);
+            position: relative;
+        }
+        
+        .output-examples-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--primary);
+            font-weight: 800;
+        }
+        
+        .output-examples-subtitle {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 60px;
+            text-align: center;
+            color: var(--gray);
+        }
+        
+        .output-example-wrapper {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .output-example-card {
+            background-color: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.08);
+            margin-bottom: 40px;
+        }
+        
+        .output-example-title {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-weight: 700;
+            text-align: center;
+        }
+        
+        .output-example-description {
+            color: var(--gray);
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 30px;
+            font-size: 1.1rem;
+        }
+        
+        .output-example-image {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: var(--light);
+            border-radius: 10px;
+        }
+        
+        .flow-diagram {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .output-example-caption {
+            margin-top: 15px;
+            color: var(--gray);
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+        
+        .output-example-features {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .feature-icon {
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+        
+        .feature-text {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .output-cta {
+            text-align: center;
+            background-color: rgba(0, 194, 255, 0.05);
+            border-radius: 20px;
+            padding: 40px;
+            margin-top: 50px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+        
+        .output-cta-text {
+            font-size: 1.4rem;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+        
+        @media (max-width: 768px) {
+            .output-example-features {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+            
+            .output-example-title {
+                font-size: 1.5rem;
+            }
+            
+            .output-cta-text {
+                font-size: 1.2rem;
+            }
+        }
+        
+        /* 導入メリットセクション */
+        .benefits {
+            padding: 100px 0;
+            background-color: white;
+        }
+        
+        .benefits-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--primary);
+            font-weight: 800;
+        }
+        
+        .benefits-subtitle {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 60px;
+            text-align: center;
+            color: var(--gray);
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .benefit-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        
+        .benefit-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .benefit-icon {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 25px;
+        }
+        
+        .benefit-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+        
+        .benefit-text {
+            color: var(--gray);
+        }
+        
+        /* 導入事例セクション */
+        .future-clients {
+            padding: 100px 0;
+            background-color: var(--light);
+        }
+        
+        .future-clients-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--primary);
+            font-weight: 800;
+        }
+        
+        .future-clients-subtitle {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 60px;
+            text-align: center;
+            color: var(--gray);
+        }
+        
+        .industry-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .industry-card {
+            background-color: var(--light);
+            border-radius: 15px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            text-align: center;
+            height: 100%;
+        }
+        
+        .industry-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .industry-icon {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 25px;
+        }
+        
+        .industry-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+        
+        .industry-text {
+            color: var(--gray);
+        }
+        
+        .future-clients-action {
+            margin-top: 50px;
+            text-align: center;
+            background-color: rgba(0, 194, 255, 0.05);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+        
+        .action-text {
+            font-size: 1.4rem;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+        
+        /* FAQセクション */
+        .faq {
+            padding: 100px 0;
+            background-color: white;
+        }
+        
+        .faq-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--primary);
+            font-weight: 800;
+        }
+        
+        .faq-subtitle {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 60px;
+            text-align: center;
+            color: var(--gray);
+        }
+        
+        .faq-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .faq-item {
+            background-color: white;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        
+        .faq-question {
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+        
+        .faq-icon {
+            color: var(--accent);
+            transition: transform 0.3s ease;
+        }
+        
+        .faq-answer {
+            padding: 0 30px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+            color: var(--gray);
+        }
+        
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+        }
+        
+        .faq-item.active .faq-answer {
+            max-height: 300px;
+            padding-bottom: 25px;
+        }
+        
+        /* CTAセクション */
+        .cta {
+            padding: 100px 0;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -10%;
+            width: 120%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0,194,255,0.1) 0%, rgba(10,46,103,0) 60%);
+            border-radius: 50%;
+        }
+        
+        .cta-title {
+            font-size: 2.8rem;
+            margin-bottom: 30px;
+            font-weight: 800;
+            position: relative;
+        }
+        
+        .cta-text {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 40px;
+            color: rgba(255, 255, 255, 0.9);
+            position: relative;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 60px;
+            position: relative;
+        }
+        
+        .guarantee {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            background-color: rgba(255, 255, 255, 0.05);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+            border-radius: 15px;
+            position: relative;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .guarantee-icon {
+            font-size: 3rem;
+            color: var(--secondary);
+        }
+        
+        .guarantee-text {
+            text-align: left;
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .guarantee-text strong {
+            display: block;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+        
+        /* お問い合わせフォーム */
+        .contact {
+            padding: 100px 0;
+            background-color: var(--light);
+        }
+        
+        .contact-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--primary);
+            font-weight: 800;
+        }
+        
+        .contact-subtitle {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 60px;
+            text-align: center;
+            color: var(--gray);
+        }
+        
+        .contact-container {
+            display: flex;
+            max-width: 1100px;
+            margin: 0 auto;
+            gap: 50px;
+        }
+        
+        .contact-info {
+            flex: 1;
+            padding-right: 30px;
+        }
+        
+        .contact-info-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+        
+        .contact-method {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .contact-icon {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(0, 194, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+        
+        .contact-method-info h4 {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .contact-method-info p {
+            color: var(--gray);
+        }
+        
+        .contact-social {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+        }
+        
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .social-icon:hover {
+            background-color: var(--primary);
+            color: white;
+            transform: translateY(-5px);
+        }
+        
+        .contact-info-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+            max-width: 800px;
+            margin: 0 auto 50px;
+        }
+        
+        .contact-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 40px;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .contact-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .contact-card-icon {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 25px;
+        }
+        
+        .contact-card-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .contact-card-text {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+        
+        .contact-email {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .contact-email:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+        
+        .contact-cta {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .form-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            font-size: 1rem;
+            background-color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 194, 255, 0.1);
+        }
+        
+        .form-control::placeholder {
+            color: rgba(0, 0, 0, 0.3);
+        }
+        
+        textarea.form-control {
+            height: 150px;
+            resize: vertical;
+        }
+        
+        .btn-submit {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        .btn-submit:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(10, 46, 103, 0.2);
+        }
+        
+        /* フッター */
+        .footer {
+            background-color: var(--primary);
+            color: white;
+            padding: 80px 0 30px;
+        }
+        
+        .footer-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 60px;
+            margin-bottom: 50px;
+        }
+        
+        .footer-logo {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .footer-logo a {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .footer-logo-highlight {
+            color: var(--accent);
+        }
+        
+        .footer-description {
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            max-width: 300px;
+        }
+        
+        .footer-links-group {
+            flex: 1;
+            min-width: 160px;
+        }
+        
+        .footer-links-title {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-link {
+            margin-bottom: 10px;
+        }
+        
+        .footer-link a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-link a:hover {
+            color: white;
+            padding-left: 5px;
+        }
+        
+        .footer-subscribe {
+            flex: 2;
+            min-width: 250px;
+        }
+        
+        .footer-subscribe-title {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .footer-subscribe-text {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 20px;
+        }
+        
+        .footer-subscribe-form {
+            display: flex;
+        }
+        
+        .footer-subscribe-input {
+            flex-grow: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 5px 0 0 5px;
+            font-size: 1rem;
+        }
+        
+        .footer-subscribe-btn {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 0 5px 5px 0;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-subscribe-btn:hover {
+            background-color: var(--secondary-light);
+        }
+        
+        .footer-bottom {
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .footer-copyright {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .footer-policy {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .footer-policy a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-policy a:hover {
+            color: white;
+        }
+        
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background-color: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 100;
+            opacity: 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .back-to-top.show {
+            opacity: 1;
+        }
+        
+        .back-to-top:hover {
+            background-color: var(--secondary-light);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* レスポンシブ対応 */
+        @media (max-width: 1024px) {
+            .hero-title {
+                font-size: 2.8rem;
+            }
+            
+            .contact-container {
+                flex-direction: column;
+            }
+            
+            .contact-info {
+                padding-right: 0;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links,
+            .nav-cta {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .hero {
+                padding: 150px 0 80px;
+            }
+            
+            .hero-title {
+                font-size: 2.3rem;
+            }
+            
+            .section-title,
+            .process-title,
+            .benefits-title,
+            .future-clients-title,
+            .faq-title,
+            .comparison-title,
+            .contact-title,
+            .cta-title {
+                font-size: 2rem;
+            }
+            
+            .hero-stats {
+                flex-direction: column;
+                gap: 20px;
+                align-items: center;
+            }
+            
+            .process-step {
+                flex-direction: column;
+            }
+            
+            .process-step-number {
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+            
+            .process-step::after {
+                left: 35px;
+                top: 70px;
+                height: calc(100% - 40px);
+            }
+            
+            .roi-stats {
+                flex-direction: column;
+                gap: 30px;
+            }
+            
+            .guarantee {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .guarantee-text {
+                text-align: center;
+            }
+            
+            .contact-form-container {
+                padding: 30px;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .footer-container {
+                flex-direction: column;
+                gap: 40px;
+            }
+            
+            .footer-bottom {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ナビゲーション -->
+    <div class="nav-container">
+        <nav class="navbar container">
+            <a href="#" class="logo">
+                <span class="logo-highlight">B</span>i<span class="logo-highlight">T</span>-Flow
+            </a>
+            
+            <div class="nav-links">
+                <a href="#about" class="nav-link">サービス概要</a>
+                <a href="#comparison" class="nav-link">従来型との比較</a>
+                <a href="#process" class="nav-link">導入プロセス</a>
+                <a href="#output-examples" class="nav-link">アウトプット例</a>
+                <a href="#future-clients" class="nav-link">対応業界</a>
+                <a href="#faq" class="nav-link">よくある質問</a>
+            </div>
+            <button class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </nav>
+    </div>
+    
+    <!-- ヒーローセクション -->
+    <section class="hero" id="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-subtitle">業務改革を加速する生成AI活用型サービス</div>
+                <h1 class="hero-title">業務フロー作成に<br><span>もう悩まない</span>時代へ</h1>
+                <p class="hero-description">BiT-Flowは、生成AIを活用した革新的な業務フロー可視化サービス。<br>従来のコンサルティング手法と比較して、<br>最大92%のコスト削減と33%の期間短縮を実現します。</p>
+                
+                <div class="hero-buttons">
+                    <a href="#contact" class="btn btn-primary btn-lg">無料相談はこちら</a>
+                    <a href="#about" class="btn btn-secondary btn-lg">サービス詳細を見る</a>
+                </div>
+                
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">92%</div>
+                        <div class="stat-text">コスト削減</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">33%</div>
+                        <div class="stat-text">期間短縮</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 課題セクション -->
+    <section class="problems" id="about">
+        <div class="container">
+            <h2 class="section-title">業務改革プロジェクトの<br>「当たり前」を変える</h2>
+            <p class="section-subtitle">多くの企業が業務改革プロジェクトでこれらの課題に直面しています。<br>ビジネスの加速が求められる今、解決策が必要です。</p>
+            
+            <div class="problems-wrapper">
+                <div class="problem-card hidden">
+                    <div class="problem-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3 class="problem-title">長期プロジェクトによる<br>機会損失</h3>
+                    <p class="problem-text">通常の業務フロー作成プロジェクトは3ヶ月以上かかり、その間にビジネスチャンスを逃してしまうことも。スピード経営が求められる現代では致命的です。</p>
+                    <div class="problem-stat">平均 <span>3</span> ヶ月以上</div>
+                </div>
+                
+                <div class="problem-card hidden">
+                    <div class="problem-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <h3 class="problem-title">高額なコンサルティング<br>費用</h3>
+                    <p class="problem-text">大手コンサルティングファームを利用した場合、プロジェクト費用は3,750万円にも達することも。中小企業はもちろん、大企業でも投資対効果に疑問を感じるケースが増えています。</p>
+                    <div class="problem-stat">最大 <span>3,750</span> 万円</div>
+                </div>
+                
+                <div class="problem-card hidden">
+                    <div class="problem-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="problem-title">社内リソースの<br>大幅な負担増</h3>
+                    <p class="problem-text">通常のコンサルティングプロジェクトでは、膨大なインタビュー対応や資料作成など、既に忙しい社内メンバーの負担が増大。本来の業務に支障が出ることも。</p>
+                    <div class="problem-stat">月 <span>80</span> 時間以上の負担</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- ソリューションセクション -->
+    <section class="solution" id="solution">
+        <div class="container">
+            <h2 class="solution-title">業務フロー作成を<span class="solution-highlight">速く・安く・簡単に</span></h2>
+            <p class="solution-subtitle">BiT-Flowなら、生成AIと専門コンサルタントの<span class="solution-highlight-2">ハイブリッドアプローチ</span>で、<br>これらの課題を一気に解決します。</p>
+            
+            <div class="solution-grid hidden">
+                <div class="solution-card">
+                    <div class="solution-card-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3 class="solution-card-title">圧倒的なスピード</h3>
+                    <p class="solution-card-text">従来の3ヶ月かかるプロジェクトを、わずか2ヶ月で完了。意思決定の迅速化とビジネス機会の最大化を実現します。</p>
+                </div>
+                
+                <div class="solution-card">
+                    <div class="solution-card-icon">
+                        <i class="fas fa-piggy-bank"></i>
+                    </div>
+                    <h3 class="solution-card-title">大幅なコスト削減</h3>
+                    <p class="solution-card-text">大手ファームでは3,750万円、新興ファームでも1,650万円かかる場合があるところを、BiT-Flowならわずか300万円で実現。</p>
+                </div>
+                
+                <div class="solution-card">
+                    <div class="solution-card-icon">
+                        <i class="fas fa-feather"></i>
+                    </div>
+                    <h3 class="solution-card-title">最小限の<br>ご担当者様負担</h3>
+                    <p class="solution-card-text">必要最小限のインプットで業務フローを自動生成。貴社ご担当者様の負担を大幅に軽減し、本来の業務に集中できます。</p>
+                </div>
+                
+                <div class="solution-card">
+                    <div class="solution-card-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="solution-card-title">高度な業務知識</h3>
+                    <p class="solution-card-text">BPR専門コンサルタントが改良した生成AIが、インタビュー結果や既存資料から最適なフローを提案します。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 比較セクション -->
+    <section class="comparison" id="comparison">
+        <div class="container">
+            <h2 class="comparison-title">従来型コンサルと<br>圧倒的な差</h2>
+                            <p class="comparison-subtitle">生成AIの活用により、従来型のコンサルティングでは実現できなかった「速さ」「コスト効率」「負担軽減」を同時に達成します。比較表はある大手ファームA社と新興ファームB社との事例です。</p>
+            
+            <div class="comparison-table-wrapper hidden">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>比較項目</th>
+                            <th>BiT-Flow</th>
+                            <th>従来型<br>大手ファームA社</th>
+                            <th>従来型<br>新興ファームB社</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>プロジェクト期間</td>
+                            <td class="bit-flow-col">
+                                <i class="fas fa-check-circle comparison-icon good-icon"></i>
+                                <span class="bit-flow-highlight">2ヶ月</span>
+                            </td>
+                            <td>
+                                <i class="fas fa-times-circle comparison-icon bad-icon"></i>
+                                <span class="competitor-text">3ヶ月〜</span>
+                            </td>
+                            <td>
+                                <i class="fas fa-times-circle comparison-icon bad-icon"></i>
+                                <span class="competitor-text">3ヶ月〜</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>総コスト</td>
+                            <td class="bit-flow-col">
+                                <i class="fas fa-check-circle comparison-icon good-icon"></i>
+                                <span class="bit-flow-highlight">300万円</span>
+                            </td>
+                            <td>
+                                <i class="fas fa-times-circle comparison-icon bad-icon"></i>
+                                <span class="competitor-text">3,750万円</span>
+                            </td>
+                            <td>
+                                <i class="fas fa-minus-circle comparison-icon neutral-icon"></i>
+                                <span class="competitor-text">1,650万円</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>貴社ご負担</td>
+                            <td class="bit-flow-col">
+                                <i class="fas fa-check-circle comparison-icon good-icon"></i>
+                                <span class="bit-flow-highlight">最小限</span>
+                            </td>
+                            <td>
+                                <i class="fas fa-times-circle comparison-icon bad-icon"></i>
+                                <span class="competitor-text">非常に多い</span>
+                            </td>
+                            <td>
+                                <i class="fas fa-times-circle comparison-icon bad-icon"></i>
+                                <span class="competitor-text">多い</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>業務フローの品質</td>
+                            <td class="bit-flow-col">
+                                <i class="fas fa-check-circle comparison-icon good-icon"></i>
+                                <span class="bit-flow-highlight">高品質</span>
+                            </td>
+                            <td>
+                                <i class="fas fa-check-circle comparison-icon good-icon"></i>
+                                <span class="competitor-text">高品質</span>
+                            </td>
+                            <td>
+                                <i class="fas fa-minus-circle comparison-icon neutral-icon"></i>
+                                <span class="competitor-text">標準的</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="comparison-note">※対象業務範囲によって、納期・費用については変動いたします</div>
+            </div>
+            
+            <div class="roi-calculation hidden">
+                <h3 class="roi-title">導入による具体的な効果</h3>
+                
+                                    <div class="roi-stats">
+                    <div class="roi-stat">
+                        <div class="roi-number">92%</div>
+                        <div class="roi-text">コスト削減率</div>
+                    </div>
+                    
+                    <div class="roi-stat">
+                        <div class="roi-number">33%</div>
+                        <div class="roi-text">プロジェクト期間短縮</div>
+                    </div>
+                    
+                    <div class="roi-stat">
+                        <div class="roi-number">75%</div>
+                        <div class="roi-text">社内リソース負担削減</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- プロセスセクション -->
+    <section class="process" id="process">
+        <div class="container">
+            <h2 class="process-title">わずか3ステップで完結</h2>
+            <p class="process-subtitle">従来型コンサルティングで繰り返し発生する「ヒアリング→レビュー」の作業を極力排除し、双方の負担を大幅に軽減します。</p>
+            
+            <div class="process-steps">
+                <div class="process-step hidden">
+                    <div class="process-step-number">1</div>
+                    <div class="process-step-content">
+                        <h3 class="process-step-title">最小限のインプット情報収集</h3>
+                        <p class="process-step-text">貴社業務のインプットとなる最低限の資料を頂戴します。既存の資料を活用するため、新たな資料作成は不要です。</p>
+                        
+                        <ul class="process-step-list">
+                            <li>既存の業務マニュアル資料</li>
+                            <li>業務について話された音声データ</li>
+                            <li>組織図や役割分担表</li>
+                            <li>現行システムの画面キャプチャ</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="process-step hidden">
+                    <div class="process-step-number">2</div>
+                    <div class="process-step-content">
+                        <h3 class="process-step-title">BiT-Flowによる業務フロー自動生成</h3>
+                        <p class="process-step-text">弊社BPR専門コンサルタントが独自に改良した生成AIが、インプット情報から業務フローを自動生成します。</p>
+                        
+                        <ul class="process-step-list">
+                            <li>生成AIによる高精度な業務フロー作成</li>
+                            <li>専門コンサルタントによる品質チェック</li>
+                            <li>業界ベストプラクティスとの比較分析</li>
+                            <li>改善点やボトルネックの自動識別</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="process-step hidden">
+                    <div class="process-step-number">3</div>
+                    <div class="process-step-content">
+                        <h3 class="process-step-title">最終レビュー・納品</h3>
+                        <p class="process-step-text">作成したフローを貴社にご確認いただき、必要に応じて調整の上、最終成果物として納品いたします。</p>
+                        
+                        <ul class="process-step-list">
+                            <li>オンラインでの効率的なレビュー</li>
+                            <li>迅速なフィードバック反映</li>
+                            <li>必要に応じた改善提案の追加</li>
+                            <li>使いやすい形式での納品</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- アウトプット例セクション -->
+    <section class="output-examples" id="output-examples">
+        <div class="container">
+            <h2 class="output-examples-title">BiT-Flowが作成する<br>業務フロー例</h2>
+            <p class="output-examples-subtitle">生成AIと専門コンサルタントの連携により、最短期間で高品質な業務フローを作成します。<br>以下は実際のアウトプット例です。</p>
+            
+            <div class="output-example-wrapper hidden">
+                <div class="output-example-card">
+                    <h3 class="output-example-title">地方自治体における申請処理業務フロー</h3>
+                    <p class="output-example-description">自治体の担当者様から収集した情報をもとに、BiT-Flowが作成した申請処理の業務フロー図です。<br>各部門の役割や処理ステップが明確に可視化されています。</p>
+                    
+                    <div class="output-example-image">
+                        <!-- 実際の画像は後で差し替え -->
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1800" width="800" height="900">
+                          <!-- 全体的な背景 -->
+                          <rect x="0" y="0" width="1200" height="1800" fill="#ffffff" />
+                          
+                          <!-- ヘッダー部分 -->
+                          <rect x="0" y="0" width="1200" height="60" fill="#f0f0f0" stroke="#333" stroke-width="1" />
+                          <text x="10" y="35" font-family="Arial" font-size="18" font-weight="bold">対象プロセス: 地方自治体における申請処理業務フロー</text>
+                          <text x="580" y="35" font-family="Arial" font-size="14" font-weight="bold">更新日: 2025/3/15</text>
+                          <text x="830" y="35" font-family="Arial" font-size="14" font-weight="bold">承認: 総務部長</text>
+                          <text x="1030" y="35" font-family="Arial" font-size="14" font-weight="bold">作成: 業務改革推進課</text>
+                        
+                          <!-- カラムヘッダー -->
+                          <rect x="0" y="60" width="100" height="60" fill="#e0e0e0" stroke="#333" stroke-width="1" />
+                          <rect x="100" y="60" width="180" height="60" fill="#e0e0e0" stroke="#333" stroke-width="1" />
+                          <rect x="280" y="60" width="180" height="60" fill="#e0e0e0" stroke="#333" stroke-width="1" />
+                          <rect x="460" y="60" width="180" height="60" fill="#e0e0e0" stroke="#333" stroke-width="1" />
+                          <rect x="640" y="60" width="180" height="60" fill="#e0e0e0" stroke="#333" stroke-width="1" />
+                          <rect x="820" y="60" width="180" height="60" fill="#e0e0e0" stroke="#333" stroke-width="1" />
+                          <rect x="1000" y="60" width="200" height="60" fill="#e0e0e0" stroke="#333" stroke-width="1" />
+                          
+                          <text x="50" y="95" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle">フェーズ</text>
+                          <text x="190" y="95" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle">住民（申請者）</text>
+                          <text x="370" y="95" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle">窓口職員</text>
+                          <text x="550" y="95" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle">担当課職員</text>
+                          <text x="730" y="95" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle">審査担当者</text>
+                          <text x="910" y="95" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle">管理職・決裁者</text>
+                          <text x="1100" y="95" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle">システム</text>
+                        
+                          <!-- ===== フェーズ1: 申請受付 ===== -->
+                          <rect x="0" y="120" width="100" height="350" fill="#e3f2fd" stroke="#333" stroke-width="1" />
+                          <text x="50" y="295" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" transform="rotate(-90,50,295)">フェーズ1: 申請受付</text>
+                        
+                          <!-- 背景グリッド -->
+                          <rect x="100" y="120" width="180" height="350" fill="#fcfcfc" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3" />
+                          <rect x="280" y="120" width="180" height="350" fill="#fcfcfc" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3" />
+                          <rect x="460" y="120" width="180" height="350" fill="#fcfcfc" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3" />
+                          <rect x="640" y="120" width="180" height="350" fill="#fcfcfc" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3" />
+                          <rect x="820" y="120" width="180" height="350" fill="#fcfcfc" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3" />
+                          <rect x="1000" y="120" width="200" height="350" fill="#fcfcfc" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3" />
+                        
+                          <!-- フローの開始マーカー -->
+                          <circle cx="190" cy="150" r="15" fill="#2196F3" stroke="#0D47A1" stroke-width="1.5" />
+                          <text x="190" y="154" font-family="Arial" font-size="14" font-weight="bold" fill="white" text-anchor="middle">開始</text>
+                        
+                          <!-- 住民（申請者） フェーズ1 -->
+                          <rect x="140" y="180" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="190" y="205" font-family="Arial" font-size="12" text-anchor="middle" font-weight="bold">1.1 申請書類準備</text>
+                          
+                          <rect x="140" y="230" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="190" y="248" font-family="Arial" font-size="12" text-anchor="middle">1.2 申請書提出</text>
+                          <text x="190" y="265" font-family="Arial" font-size="12" text-anchor="middle">必要書類提出</text>
+                          
+                          <rect x="140" y="300" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="190" y="318" font-family="Arial" font-size="12" text-anchor="middle">1.5 受付番号</text>
+                          <text x="190" y="335" font-family="Arial" font-size="12" text-anchor="middle">受領</text>
+                          
+                          <!-- 窓口職員 フェーズ1 -->
+                          <rect x="320" y="230" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="370" y="248" font-family="Arial" font-size="12" text-anchor="middle">1.3 申請書受付</text>
+                          <text x="370" y="265" font-family="Arial" font-size="12" text-anchor="middle">書類確認</text>
+                          
+                          <rect x="320" y="300" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="370" y="318" font-family="Arial" font-size="12" text-anchor="middle">1.4 受付番号発行</text>
+                          <text x="370" y="335" font-family="Arial" font-size="12" text-anchor="middle">申請者へ通知</text>
+                          
+                          <rect x="320" y="380" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="370" y="398" font-family="Arial" font-size="12" text-anchor="middle">1.6 担当課へ</text>
+                          <text x="370" y="415" font-family="Arial" font-size="12" text-anchor="middle">書類転送</text>
+                          
+                          <!-- 担当課職員 フェーズ1 -->
+                          <rect x="500" y="380" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="550" y="398" font-family="Arial" font-size="12" text-anchor="middle">1.7 申請書類</text>
+                          <text x="550" y="415" font-family="Arial" font-size="12" text-anchor="middle">受領・確認</text>
+                          
+                          <!-- システム フェーズ1 - 統一した青色 -->
+                          <!-- 申請情報DB -->
+                          <g class="database">
+                            <!-- Cylinder body -->
+                            <path d="M1050,230 L1050,280 A50,10 0 0,0 1150,280 L1150,230 Z" fill="#2196F3" stroke="#0D47A1" stroke-width="2" stroke-linejoin="round"/>
+                            <!-- Top ellipse -->
+                            <ellipse cx="1100" cy="230" rx="50" ry="10" fill="#2196F3" stroke="#0D47A1" stroke-width="2"/>
+                            <!-- Text -->
+                            <text x="1100" y="255" font-family="Arial" font-size="12" text-anchor="middle" fill="white" font-weight="bold">申請情報DB</text>
+                          </g>
+                          
+                          <!-- 受付管理DB -->
+                          <g class="database">
+                            <!-- Cylinder body -->
+                            <path d="M1050,300 L1050,350 A50,10 0 0,0 1150,350 L1150,300 Z" fill="#2196F3" stroke="#0D47A1" stroke-width="2" stroke-linejoin="round"/>
+                            <!-- Top ellipse -->
+                            <ellipse cx="1100" cy="300" rx="50" ry="10" fill="#2196F3" stroke="#0D47A1" stroke-width="2"/>
+                            <!-- Text -->
+                            <text x="1100" y="325" font-family="Arial" font-size="12" text-anchor="middle" fill="white" font-weight="bold">受付管理DB</text>
+                          </g>
+                          
+                          <!-- フェーズ1の矢印 - 垂直方向 - 修正：開始点の位置を調整 -->
+                          <path d="M190,165 L190,180" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)" />
+                          <path d="M190,220 L190,230" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)" />
+                          <path d="M190,270 L190,300" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)" />
+                          <path d="M370,270 L370,300" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)" />
+                          <path d="M370,340 L370,380" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)" />
+                          
+                          <!-- フェーズ1の矢印 - 水平方向 -->
+                          <path d="M240,250 L320,250" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                          
+                          <!-- 帳票表示 - 申請書 -->
+                          <rect x="260" y="230" width="40" height="15" fill="#FFF9C4" stroke="#FBC02D" stroke-width="1" />
+                          <text x="280" y="241" font-family="Arial" font-size="9" text-anchor="middle">申請書</text>
+                          
+                          <!-- 左に向かう矢印の修正 -->
+                          <path d="M320,320 L240,320" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                          
+                          <!-- 帳票表示 - 受付票 -->
+                          <rect x="260" y="300" width="40" height="15" fill="#FFF9C4" stroke="#FBC02D" stroke-width="1" />
+                          <text x="280" y="311" font-family="Arial" font-size="9" text-anchor="middle">受付票</text>
+                          
+                          <path d="M420,400 L500,400" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                          
+                          <!-- 帳票表示 - 申請書類一式 -->
+                          <rect x="435" y="380" width="60" height="15" fill="#FFF9C4" stroke="#FBC02D" stroke-width="1" />
+                          <text x="465" y="391" font-family="Arial" font-size="9" text-anchor="middle">申請書類一式</text>
+                          
+                          <!-- システムへの矢印 -->
+                          <path d="M420,250 L1050,250" stroke="#1E88E5" stroke-width="1.5" fill="none" marker-end="url(#system-arrow)" />
+                          <path d="M420,320 L1050,320" stroke="#1E88E5" stroke-width="1.5" fill="none" marker-end="url(#system-arrow)" />
+                          
+                          <!-- ===== フェーズ2: 申請内容確認・審査 ===== -->
+                          <rect x="0" y="470" width="100" height="400" fill="#e3f2fd" stroke="#333" stroke-width="1" />
+                          <text x="50" y="670" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" transform="rotate(-90,50,670)">フェーズ2: 申請内容確認・審査</text>
+                        
+                          <!-- 背景グリッド -->
+                          <rect x="100" y="470" width="180" height="400" fill="#fcfcfc" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3" />
+                          <rect x="280" y="470" width="180" height="400" fill="#fcfcfc" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3" />
+                          <rect x="460" y="470" width="180" height="400" fill="#fcfcfc" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3" />
+                          <rect x="640" y="470" width="180" height="400" fill="#fcfcfc" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3" />
+                          <rect x="820" y="470" width="180" height="400" fill="#fcfcfc" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3" />
+                          <rect x="1000" y="470" width="180" height="400" fill="#fcfcfc" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3" />
+                        
+                          <!-- 住民（申請者） フェーズ2 -->
+                          <rect x="140" y="600" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="190" y="618" font-family="Arial" font-size="12" text-anchor="middle">2.3 追加資料提出</text>
+                          <text x="190" y="635" font-family="Arial" font-size="12" text-anchor="middle">（必要な場合）</text>
+                          
+                          <!-- 担当課職員 フェーズ2 -->
+                          <rect x="500" y="490" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="550" y="508" font-family="Arial" font-size="12" text-anchor="middle">2.1 申請内容確認</text>
+                          <text x="550" y="525" font-family="Arial" font-size="12" text-anchor="middle">必要書類確認</text>
+                          
+                          <!-- 申請内容確認の分岐（菱形） -->
+                          <polygon points="550,550 570,570 550,590 530,570" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="550" y="575" font-family="Arial" font-size="10" text-anchor="middle">追加資料</text>
+                          <text x="550" y="585" font-family="Arial" font-size="10" text-anchor="middle">必要？</text>
+                          <text x="515" y="570" font-family="Arial" font-size="10" text-anchor="middle">はい</text>
+                          <text x="585" y="570" font-family="Arial" font-size="10" text-anchor="middle">いいえ</text>
+                          
+                          <!-- 分岐による2つの処理：左側と右側 -->
+                          <rect x="420" y="600" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="470" y="618" font-family="Arial" font-size="12" text-anchor="middle">2.2 追加資料依頼</text>
+                          <text x="470" y="635" font-family="Arial" font-size="12" text-anchor="middle">（必要な場合）</text>
+                          
+                          <rect x="580" y="600" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="630" y="618" font-family="Arial" font-size="12" text-anchor="middle">2.4 申請内容</text>
+                          <text x="630" y="635" font-family="Arial" font-size="12" text-anchor="middle">審査準備</text>
+                          
+                          <rect x="500" y="680" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="550" y="698" font-family="Arial" font-size="12" text-anchor="middle">2.5 申請内容</text>
+                          <text x="550" y="715" font-family="Arial" font-size="12" text-anchor="middle">審査依頼</text>
+                          
+                          <!-- 審査担当者 フェーズ2 -->
+                          <rect x="680" y="680" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="730" y="698" font-family="Arial" font-size="12" text-anchor="middle">2.6 申請内容</text>
+                          <text x="730" y="715" font-family="Arial" font-size="12" text-anchor="middle">審査実施</text>
+                          
+                          <rect x="680" y="760" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="730" y="778" font-family="Arial" font-size="12" text-anchor="middle">2.7 審査結果</text>
+                          <text x="730" y="795" font-family="Arial" font-size="12" text-anchor="middle">記録・報告</text>
+                          
+                          <!-- システム フェーズ2 - 統一した青色 -->
+                          <!-- 申請状態DB -->
+                          <g class="database">
+                            <!-- Cylinder body -->
+                            <path d="M1050,490 L1050,540 A50,10 0 0,0 1150,540 L1150,490 Z" fill="#2196F3" stroke="#0D47A1" stroke-width="2" stroke-linejoin="round"/>
+                            <!-- Top ellipse -->
+                            <ellipse cx="1100" cy="490" rx="50" ry="10" fill="#2196F3" stroke="#0D47A1" stroke-width="2"/>
+                            <!-- Text -->
+                            <text x="1100" y="515" font-family="Arial" font-size="12" text-anchor="middle" fill="white" font-weight="bold">申請状態DB</text>
+                          </g>
+                          
+                          <!-- 審査情報DB -->
+                          <g class="database">
+                            <!-- Cylinder body -->
+                            <path d="M1050,760 L1050,810 A50,10 0 0,0 1150,810 L1150,760 Z" fill="#2196F3" stroke="#0D47A1" stroke-width="2" stroke-linejoin="round"/>
+                            <!-- Top ellipse -->
+                            <ellipse cx="1100" cy="760" rx="50" ry="10" fill="#2196F3" stroke="#0D47A1" stroke-width="2"/>
+                            <!-- Text -->
+                            <text x="1100" y="785" font-family="Arial" font-size="12" text-anchor="middle" fill="white" font-weight="bold">審査情報DB</text>
+                          </g>
+                          
+                          <!-- フェーズ2の矢印 - 垂直方向 -->
+                          <path d="M550,530 L550,550" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)" />
+                          <path d="M730,720 L730,760" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)" />
+                          
+                          <!-- フェーズ2の矢印 - 水平方向と分岐 - 修正部分 -->
+                          <!-- 左側への分岐 -->
+                          <path d="M530,570 L470,570 L470,600" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                          
+                          <!-- 右側への分岐 -->
+                          <path d="M570,570 L630,570 L630,600" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                          
+                          <!-- 住民への矢印 - 修正部分 -->
+                          <path d="M420,620 L240,620" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                          
+                          <!-- 帳票表示 - 追加資料依頼 -->
+                          <rect x="325" y="600" width="70" height="15" fill="#E1F5FE" stroke="#29B6F6" stroke-width="1" />
+                          <text x="360" y="611" font-family="Arial" font-size="9" text-anchor="middle">追加資料依頼書</text>
+                          
+                          <!-- 住民からの矢印 - 修正部分 -->
+                          <path d="M240,620 L420,620" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                          
+                          <!-- 帳票表示 - 追加資料 -->
+                          <rect x="320" y="620" width="50" height="15" fill="#FFF9C4" stroke="#FBC02D" stroke-width="1" />
+                          <text x="345" y="631" font-family="Arial" font-size="9" text-anchor="middle">追加資料</text>
+                          
+                          <!-- 合流の矢印 - 修正：2.2と2.4から2.5への接続を正しく修正 -->
+                          <path d="M470,640 L470,660 L510,660 L510,680" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                          <path d="M630,640 L630,660 L590,660 L590,680" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                          
+                          <path d="M600,700 L680,700" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                          
+                          <!-- 帳票表示 - 審査依頼書 -->
+                          <rect x="615" y="680" width="60" height="15" fill="#E1F5FE" stroke="#29B6F6" stroke-width="1" />
+                          <text x="645" y="691" font-family="Arial" font-size="9" text-anchor="middle">審査依頼書</text>
+                          
+                          <!-- システムへの矢印 -->
+                          <path d="M600,510 L1050,510" stroke="#1E88E5" stroke-width="1.5" fill="none" marker-end="url(#system-arrow)" />
+                          <path d="M780,780 L1050,780" stroke="#1E88E5" stroke-width="1.5" fill="none" marker-end="url(#system-arrow)" />
+                          
+                          <!-- ===== フェーズ3: 決裁・承認 ===== -->
+                          <rect x="0" y="870" width="100" height="300" fill="#e3f2fd" stroke="#333" stroke-width="1" />
+                          <text x="50" y="1020" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" transform="rotate(-90,50,1020)">フェーズ3: 決裁・承認</text>
+                        
+                          <!-- 背景グリッド -->
+                          <rect x="100" y="870" width="180" height="300" fill="#fcfcfc" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3" />
+                          <rect x="280" y="870" width="180" height="300" fill="#fcfcfc" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3" />
+                          <rect x="460" y="870" width="180" height="300" fill="#fcfcfc" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3" />
+                          <rect x="640" y="870" width="180" height="300" fill="#fcfcfc" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3" />
+                          <rect x="820" y="870" width="180" height="300" fill="#fcfcfc" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3" />
+                          <rect x="1000" y="870" width="200" height="300" fill="#fcfcfc" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3" />
+                        
+                          <!-- 担当課職員 フェーズ3 -->
+                          <rect x="500" y="890" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="550" y="908" font-family="Arial" font-size="12" text-anchor="middle">3.1 審査結果</text>
+                          <text x="550" y="925" font-family="Arial" font-size="12" text-anchor="middle">受領・確認</text>
+                          
+                          <rect x="500" y="950" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="550" y="968" font-family="Arial" font-size="12" text-anchor="middle">3.2 決裁依頼</text>
+                          <text x="550" y="985" font-family="Arial" font-size="12" text-anchor="middle">書類作成</text>
+                          
+                          <!-- 審査担当者 フェーズ3 -->
+                          <rect x="680" y="890" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="730" y="908" font-family="Arial" font-size="12" text-anchor="middle">3.0 決裁用</text>
+                          <text x="730" y="925" font-family="Arial" font-size="12" text-anchor="middle">報告書作成</text>
+                          
+                          <!-- 管理職・決裁者 フェーズ3 -->
+                          <rect x="860" y="950" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="910" y="968" font-family="Arial" font-size="12" text-anchor="middle">3.3 決裁書類確認</text>
+                          <text x="910" y="985" font-family="Arial" font-size="12" text-anchor="middle">内容審査</text>
+                          
+                          <!-- 決裁の分岐（菱形） -->
+                          <polygon points="910,1010 930,1030 910,1050 890,1030" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="910" y="1030" font-family="Arial" font-size="10" text-anchor="middle">承認？</text>
+                          <text x="875" y="1030" font-family="Arial" font-size="10" text-anchor="middle">却下</text>
+                          <text x="945" y="1030" font-family="Arial" font-size="10" text-anchor="middle">承認</text>
+                          
+                          <!-- 分岐による2つの処理：左側と右側 -->
+                          <rect x="800" y="1070" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="850" y="1088" font-family="Arial" font-size="12" text-anchor="middle">3.4a 決裁却下</text>
+                          <text x="850" y="1105" font-family="Arial" font-size="12" text-anchor="middle">理由記録</text>
+                          
+                          <rect x="920" y="1070" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="970" y="1088" font-family="Arial" font-size="12" text-anchor="middle">3.4b 決裁承認</text>
+                          <text x="970" y="1105" font-family="Arial" font-size="12" text-anchor="middle">承認記録</text>
+                          
+                          <rect x="500" y="1070" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="550" y="1088" font-family="Arial" font-size="12" text-anchor="middle">3.5 決裁結果</text>
+                          <text x="550" y="1105" font-family="Arial" font-size="12" text-anchor="middle">受領・確認</text>
+                          
+                          <!-- システム フェーズ3 - 統一した青色 -->
+                          <!-- 決裁情報DB -->
+                          <g class="database">
+                            <!-- Cylinder body -->
+                            <path d="M1050,950 L1050,1000 A50,10 0 0,0 1150,1000 L1150,950 Z" fill="#2196F3" stroke="#0D47A1" stroke-width="2" stroke-linejoin="round"/>
+                            <!-- Top ellipse -->
+                            <ellipse cx="1100" cy="950" rx="50" ry="10" fill="#2196F3" stroke="#0D47A1" stroke-width="2"/>
+                            <!-- Text -->
+                            <text x="1100" y="975" font-family="Arial" font-size="12" text-anchor="middle" fill="white" font-weight="bold">決裁情報DB</text>
+                          </g>
+                          
+                          <!-- 審査結果DB -->
+                          <g class="database">
+                            <!-- Cylinder body -->
+                            <path d="M1050,1070 L1050,1120 A50,10 0 0,0 1150,1120 L1150,1070 Z" fill="#2196F3" stroke="#0D47A1" stroke-width="2" stroke-linejoin="round"/>
+                            <!-- Top ellipse -->
+                            <ellipse cx="1100" cy="1070" rx="50" ry="10" fill="#2196F3" stroke="#0D47A1" stroke-width="2"/>
+                            <!-- Text -->
+                            <text x="1100" y="1095" font-family="Arial" font-size="12" text-anchor="middle" fill="white" font-weight="bold">審査結果DB</text>
+                          </g>
+                          
+                          <!-- フェーズ3の矢印 - 垂直方向 -->
+                          <path d="M550,930 L550,950" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)" />
+                          <path d="M910,990 L910,1010" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)" />
+                          
+                          <!-- フェーズ3の矢印 - 水平方向と分岐 -->
+                          <!-- 左に向かう矢印 -->
+                          <path d="M680,910 L600,910" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                          
+                          <!-- 帳票表示 - 審査報告書 -->
+                          <rect x="615" y="890" width="60" height="15" fill="#E1F5FE" stroke="#29B6F6" stroke-width="1" />
+                          <text x="645" y="901" font-family="Arial" font-size="9" text-anchor="middle">審査報告書</text>
+                          
+                          <!-- 右に向かう矢印 -->
+                          <path d="M600,970 L860,970" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                          
+                          <!-- 帳票表示 - 決裁稟議書 -->
+                          <rect x="710" y="950" width="60" height="15" fill="#E1F5FE" stroke="#29B6F6" stroke-width="1" />
+                          <text x="740" y="961" font-family="Arial" font-size="9" text-anchor="middle">決裁稟議書</text>
+                          
+                          <!-- 左側への分岐 -->
+                          <path d="M890,1030 L850,1030 L850,1070" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                          
+                          <!-- 右側への分岐 -->
+                          <path d="M930,1030 L970,1030 L970,1070" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                          
+                          <!-- 合流の矢印（修正：3.4aと3.4bからの矢印を箱の下から出すように修正） -->
+                          <path d="M850,1110 L850,1130 L650,1130 L650,1090 L600,1090" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                          <path d="M970,1110 L970,1130 L650,1130" stroke="#333" stroke-width="1.5" fill="none" />
+                          
+                          <!-- 帳票表示 - 決裁結果 -->
+                          <rect x="700" y="1070" width="60" height="15" fill="#E1F5FE" stroke="#29B6F6" stroke-width="1" />
+                          <text x="730" y="1081" font-family="Arial" font-size="9" text-anchor="middle">決裁結果通知</text>
+                          
+                          <!-- システムへの矢印 -->
+                          <path d="M550,990 L550,1000 L800,1000 L1050,1000" stroke="#1E88E5" stroke-width="1.5" fill="none" marker-end="url(#system-arrow)" />
+                          <path d="M850,1110 L850,1120 L975,1120 L1050,1120" stroke="#1E88E5" stroke-width="1.5" fill="none" marker-end="url(#system-arrow)" />
+                          <path d="M970,1110 L970,1120" stroke="#1E88E5" stroke-width="1.5" fill="none" />
+                          
+                          <!-- ===== フェーズ4: 通知・交付 ===== -->
+                          <rect x="0" y="1170" width="100" height="380" fill="#e3f2fd" stroke="#333" stroke-width="1" />
+                          <text x="50" y="1360" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" transform="rotate(-90,50,1360)">フェーズ4: 通知・交付</text>
+                        
+                          <!-- 背景グリッド -->
+                          <rect x="100" y="1170" width="180" height="380" fill="#fcfcfc" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3" />
+                          <rect x="280" y="1170" width="180" height="380" fill="#fcfcfc" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3" />
+                          <rect x="460" y="1170" width="180" height="380" fill="#fcfcfc" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3" />
+                          <rect x="640" y="1170" width="180" height="380" fill="#fcfcfc" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3" />
+                          <rect x="820" y="1170" width="180" height="380" fill="#fcfcfc" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3" />
+                          <rect x="1000" y="1170" width="200" height="380" fill="#fcfcfc" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3" />
+                        
+                          <!-- 結果通知の分岐（菱形） - 横に配置 -->
+                          <polygon points="550,1200 570,1220 550,1240 530,1220" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="550" y="1225" font-family="Arial" font-size="10" text-anchor="middle">決裁結果</text>
+                          <text x="515" y="1220" font-family="Arial" font-size="10" text-anchor="middle">却下</text>
+                          <text x="585" y="1220" font-family="Arial" font-size="10" text-anchor="middle">承認</text>
+                          
+                          <!-- 住民（申請者） フェーズ4 -->
+                          <rect x="140" y="1350" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="190" y="1368" font-family="Arial" font-size="12" text-anchor="middle">4.6 結果通知</text>
+                          <text x="190" y="1385" font-family="Arial" font-size="12" text-anchor="middle">受領</text>
+                          
+                          <rect x="140" y="1430" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="190" y="1448" font-family="Arial" font-size="12" text-anchor="middle">4.9 証明書等</text>
+                          <text x="190" y="1465" font-family="Arial" font-size="12" text-anchor="middle">受取</text>
+                          
+                          <!-- 窓口職員 フェーズ4 -->
+                          <rect x="320" y="1270" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="370" y="1288" font-family="Arial" font-size="12" text-anchor="middle">4.3 通知書</text>
+                          <text x="370" y="1305" font-family="Arial" font-size="12" text-anchor="middle">発送準備</text>
+                          
+                          <rect x="320" y="1350" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="370" y="1368" font-family="Arial" font-size="12" text-anchor="middle">4.5 通知書</text>
+                          <text x="370" y="1385" font-family="Arial" font-size="12" text-anchor="middle">発送/交付</text>
+                          
+                          <rect x="320" y="1430" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="370" y="1448" font-family="Arial" font-size="12" text-anchor="middle">4.8 証明書等</text>
+                          <text x="370" y="1465" font-family="Arial" font-size="12" text-anchor="middle">交付</text>
+                          
+                          <!-- 担当課職員 フェーズ4 - 分岐に合わせて左右に配置 -->
+                          <rect x="450" y="1270" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="500" y="1288" font-family="Arial" font-size="12" text-anchor="middle">4.1a 却下通知書</text>
+                          <text x="500" y="1305" font-family="Arial" font-size="12" text-anchor="middle">作成</text>
+                          
+                          <rect x="550" y="1270" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="600" y="1288" font-family="Arial" font-size="12" text-anchor="middle">4.1b 承認通知書</text>
+                          <text x="600" y="1305" font-family="Arial" font-size="12" text-anchor="middle">・証明書作成</text>
+                          
+                          <rect x="500" y="1350" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="550" y="1368" font-family="Arial" font-size="12" text-anchor="middle">4.4 交付物確認</text>
+                          <text x="550" y="1385" font-family="Arial" font-size="12" text-anchor="middle">記録</text>
+                          
+                          <rect x="500" y="1430" width="100" height="40" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="550" y="1448" font-family="Arial" font-size="12" text-anchor="middle">4.7 申請処理</text>
+                          <text x="550" y="1465" font-family="Arial" font-size="12" text-anchor="middle">完了登録</text>
+                        
+                          <!-- システム フェーズ4 - 統一した青色 -->
+                          <!-- 通知情報DB -->
+                          <g class="database">
+                            <!-- Cylinder body -->
+                            <path d="M1050,1270 L1050,1320 A50,10 0 0,0 1150,1320 L1150,1270 Z" fill="#2196F3" stroke="#0D47A1" stroke-width="2" stroke-linejoin="round"/>
+                            <!-- Top ellipse -->
+                            <ellipse cx="1100" cy="1270" rx="50" ry="10" fill="#2196F3" stroke="#0D47A1" stroke-width="2"/>
+                            <!-- Text -->
+                            <text x="1100" y="1295" font-family="Arial" font-size="12" text-anchor="middle" fill="white" font-weight="bold">通知情報DB</text>
+                          </g>
+                          
+                          <!-- 処理完了DB -->
+                          <g class="database">
+                            <!-- Cylinder body -->
+                            <path d="M1050,1430 L1050,1480 A50,10 0 0,0 1150,1480 L1150,1430 Z" fill="#2196F3" stroke="#0D47A1" stroke-width="2" stroke-linejoin="round"/>
+                            <!-- Top ellipse -->
+                            <ellipse cx="1100" cy="1430" rx="50" ry="10" fill="#2196F3" stroke="#0D47A1" stroke-width="2"/>
+                            <!-- Text -->
+                            <text x="1100" y="1455" font-family="Arial" font-size="12" text-anchor="middle" fill="white" font-weight="bold">処理完了DB</text>
+                          </g>
+                          
+                          <!-- フェーズ4の矢印 - 垂直方向 -->
+                          <path d="M550,1110 L550,1200" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)" />
+                          <path d="M370,1310 L370,1350" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)" />
+                          <path d="M370,1390 L370,1430" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)" />
+                          <path d="M550,1390 L550,1430" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)" />
+                          
+                          <!-- フェーズ4の矢印 - 水平方向と分岐（修正：4.1aと4.1bの矢印経路を改善） -->
+                          <!-- 左側への分岐（却下） -->
+                          <path d="M530,1220 L500,1220 L500,1270" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                          
+                          <!-- 右側への分岐（承認） -->
+                          <path d="M570,1220 L600,1220 L600,1270" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                          
+                          <!-- 窓口職員への矢印 -->
+                          <path d="M500,1310 L500,1325 L370,1325 L370,1350" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                          
+                          <!-- 帳票表示 - 却下通知書 -->
+                          <rect x="435" y="1325" width="60" height="15" fill="#E1F5FE" stroke="#29B6F6" stroke-width="1" />
+                          <text x="465" y="1336" font-family="Arial" font-size="9" text-anchor="middle">却下通知書</text>
+                          
+                          <!-- 窓口職員への矢印（承認経路） -->
+                          <path d="M600,1310 L600,1325 L370,1325 L370,1350" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                          
+                          <!-- 帳票表示 - 承認通知書 -->
+                          <rect x="500" y="1325" width="60" height="15" fill="#E1F5FE" stroke="#29B6F6" stroke-width="1" />
+                          <text x="530" y="1336" font-family="Arial" font-size="9" text-anchor="middle">承認通知書</text>
+                          
+                          <!-- 4.4への矢印 -->
+                          <path d="M420,1370 L500,1370" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                          
+                          <!-- 帳票表示 - 証明書 -->
+                          <rect x="425" y="1350" width="40" height="15" fill="#FFF9C4" stroke="#FBC02D" stroke-width="1" />
+                          <text x="445" y="1361" font-family="Arial" font-size="9" text-anchor="middle">証明書</text>
+                          
+                          <!-- 住民への矢印 -->
+                          <path d="M320,1370 L240,1370" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                          
+                          <!-- 帳票表示 - 結果通知 -->
+                          <rect x="260" y="1350" width="50" height="15" fill="#E1F5FE" stroke="#29B6F6" stroke-width="1" />
+                          <text x="285" y="1361" font-family="Arial" font-size="9" text-anchor="middle">結果通知</text>
+                          
+                          <path d="M320,1450 L240,1450" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                          
+                          <!-- 帳票表示 - 証明書 -->
+                          <rect x="260" y="1430" width="50" height="15" fill="#FFF9C4" stroke="#FBC02D" stroke-width="1" />
+                          <text x="285" y="1441" font-family="Arial" font-size="9" text-anchor="middle">証明書</text>
+                          
+                          <!-- 処理完了への矢印 -->
+                          <path d="M420,1450 L500,1450" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                          
+                          <!-- フローの終了マーカー -->
+                          <circle cx="190" cy="1500" r="15" fill="#2196F3" stroke="#0D47A1" stroke-width="1.5" />
+                          <text x="190" y="1504" font-family="Arial" font-size="14" font-weight="bold" fill="white" text-anchor="middle">終了</text>
+                          
+                          <!-- 終了への矢印 -->
+                          <path d="M190,1470 L190,1485" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)" />
+                          
+                          <!-- システムへの矢印 -->
+                          <path d="M500,1310 L500,1320 L800,1320 L1050,1320" stroke="#1E88E5" stroke-width="1.5" fill="none" marker-end="url(#system-arrow)" />
+                          <path d="M600,1450 L1050,1450" stroke="#1E88E5" stroke-width="1.5" fill="none" marker-end="url(#system-arrow)" />
+                          
+                          <!-- フェーズ間の接続矢印 - 修正：通常の矢印に変更 -->
+                          <path d="M550,420 L550,470" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                          <path d="M730,800 L730,830 L550,830 L550,890" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+                          
+                          <!-- 処理ステータス表示 - 各フェーズのメインステータス -->
+                          <rect x="1000" y="430" width="180" height="30" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1" />
+                          <text x="1090" y="450" font-family="Arial" font-size="12" text-anchor="middle" font-weight="bold">処理状況：受付完了</text>
+                          
+                          <rect x="1000" y="830" width="180" height="30" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1" />
+                          <text x="1090" y="850" font-family="Arial" font-size="12" text-anchor="middle" font-weight="bold">処理状況：審査完了</text>
+                          
+                          <rect x="1000" y="1130" width="180" height="30" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1" />
+                          <text x="1090" y="1150" font-family="Arial" font-size="12" text-anchor="middle" font-weight="bold">処理状況：決裁完了</text>
+                          
+                          <rect x="1000" y="1510" width="180" height="30" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1" />
+                          <text x="1090" y="1530" font-family="Arial" font-size="12" text-anchor="middle" font-weight="bold">処理状況：処理完了</text>
+                          
+                          <!-- 凡例（修正：添付画像の通りに整理） -->
+                          <rect x="100" y="1570" width="1000" height="90" rx="5" ry="5" fill="#f8f9fa" stroke="#777" stroke-width="1" />
+                          <text x="600" y="1590" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle">申請処理業務フロー図凡例</text>
+                          
+                          <!-- 凡例項目の再配置 - 添付画像を参考に横一列に整理 -->
+                          <rect x="150" y="1620" width="70" height="30" rx="3" ry="3" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="185" y="1640" font-family="Arial" font-size="10" text-anchor="middle">業務タスク</text>
+                          
+                          <polygon points="300,1620 320,1635 300,1650 280,1635" fill="#f5faff" stroke="#2196F3" stroke-width="1.5" />
+                          <text x="345" y="1640" font-family="Arial" font-size="10" text-anchor="middle">判断/分岐</text>
+                          
+                          <!-- システムDB - 凡例用 -->
+                          <g class="database" transform="translate(0, 0)">
+                            <path d="M435,1625 L435,1645 A25,8 0 0,0 485,1645 L485,1625 Z" fill="#2196F3" stroke="#0D47A1" stroke-width="2" stroke-linejoin="round"/>
+                            <ellipse cx="460" cy="1625" rx="25" ry="8" fill="#2196F3" stroke="#0D47A1" stroke-width="2"/>
+                          </g>
+                          <text x="530" y="1640" font-family="Arial" font-size="10" text-anchor="middle">システムDB</text>
+                          
+                          <!-- 矢印の凡例 - 横に並べる -->
+                          <path d="M600,1635 L640,1635" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)" />
+                          <text x="670" y="1640" font-family="Arial" font-size="10" text-anchor="middle">業務の流れ</text>
+                          
+                          <path d="M730,1635 L770,1635" stroke="#1E88E5" stroke-width="1.5" marker-end="url(#system-arrow)" />
+                          <text x="810" y="1640" font-family="Arial" font-size="10" text-anchor="middle">システム連携</text>
+                          
+                          <!-- 帳票の凡例 -->
+                          <rect x="850" y="1628" width="40" height="15" fill="#FFF9C4" stroke="#FBC02D" stroke-width="1" />
+                          <text x="870" y="1640" font-family="Arial" font-size="8" text-anchor="middle">申請書類</text>
+                          
+                          <rect x="910" y="1628" width="40" height="15" fill="#E1F5FE" stroke="#29B6F6" stroke-width="1" />
+                          <text x="930" y="1640" font-family="Arial" font-size="8" text-anchor="middle">内部文書</text>
+                          
+                          <circle cx="980" cy="1635" r="12" fill="#2196F3" stroke="#0D47A1" stroke-width="1.5" />
+                          <text x="980" y="1639" font-family="Arial" font-size="10" font-weight="bold" fill="white" text-anchor="middle">始/終</text>
+                          
+                          <!-- 注記 -->
+                          <rect x="100" y="1670" width="1000" height="20" fill="#f8f9fa" stroke="none" />
+                          <text x="600" y="1685" font-family="Arial" font-size="12" text-anchor="middle" font-style="italic">注: 自治体によって申請手続きの詳細は異なります。例外処理（差戻し等）は別途規定されています。</text>
+                          
+                          <!-- バージョン情報 -->
+                          <text x="1180" y="1695" font-family="Arial" font-size="10" text-anchor="end" fill="#333">Ver 3.0</text>
+                          
+                          <!-- 矢印マーカーの定義 -->
+                          <defs>
+                            <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                              <path d="M0,0 L0,6 L9,3 z" fill="#333" />
+                            </marker>
+                            <marker id="system-arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                              <path d="M0,0 L0,6 L9,3 z" fill="#1E88E5" />
+                            </marker>
+                          </defs>
+                        </svg>
+                        <div class="output-example-caption">
+                            対象プロセス：地方自治体における申請処理業務フロー
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 導入メリットセクション -->
+    <section class="benefits" id="benefits">
+        <div class="container">
+            <h2 class="benefits-title">BiT-Flow導入の具体的メリット</h2>
+            <p class="benefits-subtitle">業務フロー作成だけでなく、組織全体の業務改革を加速させる多くのメリットがあります。</p>
+            
+            <div class="benefits-grid">
+                <div class="benefit-card hidden">
+                    <div class="benefit-icon">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <h3 class="benefit-title">時間とコストの大幅削減</h3>
+                    <p class="benefit-text">従来の方法と比較して、プロジェクト期間を約33%短縮、コストを最大92%削減。経営資源を他の重要な取り組みに振り向けることが可能になります。</p>
+                </div>
+                
+                <div class="benefit-card hidden">
+                    <div class="benefit-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <h3 class="benefit-title">ご担当者様の負担軽減</h3>
+                    <p class="benefit-text">必要最小限のインプット収集により、貴社ご担当者様への負担を最小化。通常のプロジェクトで発生する膨大なインタビューや資料作成作業から解放されます。</p>
+                </div>
+                
+                <div class="benefit-card hidden">
+                    <div class="benefit-icon">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <h3 class="benefit-title">高品質な成果物</h3>
+                    <p class="benefit-text">BPR専門コンサルタントと生成AI技術の組み合わせによる、最適化された業務フローの実現。両者の強みを活かした高品質な成果物を提供します。</p>
+                </div>
+                
+                <div class="benefit-card hidden">
+                    <div class="benefit-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3 class="benefit-title">迅速な意思決定</h3>
+                    <p class="benefit-text">業務フローの早期可視化により、経営判断や業務改革の意思決定を加速。スピード経営が求められる現代ビジネスにおいて大きなアドバンテージとなります。</p>
+                </div>
+                
+                <div class="benefit-card hidden">
+                    <div class="benefit-icon">
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
+                    <h3 class="benefit-title">継続的な改善の促進</h3>
+                    <p class="benefit-text">一度作成した業務フローをベースに、継続的な改善が容易になります。変更点のみを更新することで、常に最新の業務フローを維持できます。</p>
+                </div>
+                
+                <div class="benefit-card hidden">
+                    <div class="benefit-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <h3 class="benefit-title">業務標準化の促進</h3>
+                    <p class="benefit-text">可視化された業務フローにより、組織全体での業務の標準化が促進されます。属人化を防ぎ、効率的な業務運営と品質向上を実現します。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 導入予定のお客様向けセクション -->
+    <section class="future-clients" id="future-clients">
+        <div class="container">
+            <h2 class="future-clients-title">BiT-Flowが活躍する業界</h2>
+            <p class="future-clients-subtitle">あらゆる業種・業界で活用できる、業務フロー可視化サービス</p>
+            
+            <div class="industry-grid">
+                <div class="industry-card hidden">
+                    <div class="industry-icon">
+                        <i class="fas fa-industry"></i>
+                    </div>
+                    <h3 class="industry-title">製造業</h3>
+                    <p class="industry-text">生産管理、品質管理、在庫管理などの業務フロー可視化に最適。工程間の連携を強化し、生産効率の向上と品質の安定化を実現します。</p>
+                </div>
+                
+                <div class="industry-card hidden">
+                    <div class="industry-icon">
+                        <i class="fas fa-landmark"></i>
+                    </div>
+                    <h3 class="industry-title">金融業</h3>
+                    <p class="industry-text">融資審査、顧客対応、コンプライアンス関連プロセスなどの可視化により、業務効率化とリスク管理の両立を支援します。</p>
+                </div>
+                
+                <div class="industry-card hidden">
+                    <div class="industry-icon">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h3 class="industry-title">IT・通信</h3>
+                    <p class="industry-text">システム開発プロセス、サポート業務、インシデント対応フローなどを可視化。属人化を防ぎ、品質の安定化とチーム連携の強化を実現します。</p>
+                </div>
+                
+                <div class="industry-card hidden">
+                    <div class="industry-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <h3 class="industry-title">小売・流通</h3>
+                    <p class="industry-text">受発注管理、在庫管理、物流プロセスなどの可視化により、無駄を削減し顧客満足度向上につながる業務改善を支援します。</p>
+                </div>
+                
+                <div class="industry-card hidden">
+                    <div class="industry-icon">
+                        <i class="fas fa-hospital-alt"></i>
+                    </div>
+                    <h3 class="industry-title">医療・ヘルスケア</h3>
+                    <p class="industry-text">患者対応フロー、医療事務処理、情報管理などのプロセス可視化により、医療サービスの質の向上と業務効率化を両立します。</p>
+                </div>
+                
+                <div class="industry-card hidden">
+                    <div class="industry-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <h3 class="industry-title">不動産・建設</h3>
+                    <p class="industry-text">物件管理、契約プロセス、施工管理などの業務フロー可視化により、プロジェクト進行の透明性向上と効率化を実現します。</p>
+                </div>
+            </div>
+            
+            <div class="future-clients-action hidden">
+                <p class="action-text">あなたの業界に合わせた最適な業務フロー可視化をご提案します</p>
+                <a href="#contact" class="btn btn-primary">無料相談はこちら</a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- FAQセクション -->
+    <section class="faq" id="faq">
+        <div class="container">
+            <h2 class="faq-title">よくあるご質問</h2>
+            <p class="faq-subtitle">BiT-Flowに関する疑問にお答えします。</p>
+            
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        どのような業種・業務に適用できますか？
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        製造、物流、金融、小売、ITサービスなど、あらゆる業種の業務フロー作成に対応しております。特に、定型業務や複数部門にまたがる業務、規模の大きな業務プロセスの可視化に強みがあります。また、新規事業立ち上げ時の業務設計や、M&A後の業務統合といったシーンでも活用いただけます。
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        既存の業務資料が少ない場合でも対応可能ですか？
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        はい、対応可能です。既存資料が少ない場合でも、業務担当者へのインタビュー内容を録音したデータや、簡単なメモなどからでも業務フローを作成できます。生成AIの特性を活かし、少ない情報からでも全体像を把握し、必要に応じて追加の質問で補完していく形で進めます。
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        納品物のフォーマットはどのようなものですか？
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        標準では、PDF形式やSVG形式での納品とさせていただきます。Excel形式やPowerPoint形式をご希望のお客様は追加料金にて要相談となります。
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        情報セキュリティ面は大丈夫ですか？
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        セキュリティ面には万全の対策を講じています。お預かりした情報は専用のセキュアな環境で処理され、プロジェクト終了後は適切に破棄されます。また、生成AIの学習に顧客データを使用することはありません。必要に応じてNDA（秘密保持契約）を締結し、オンプレミス環境での実施も可能です。
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        導入までの期間はどのくらいですか？
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        ご契約後、最短1週間でプロジェクトを開始可能です。プロジェクト全体の期間は、対象業務の規模にもよりますが、標準的には2ヶ月程度です。急ぎの案件の場合は、対象範囲を調整することで、より短期間での納品も可能ですので、お気軽にご相談ください。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTAセクション -->
+    <section class="cta" id="cta">
+        <div class="container">
+            <h2 class="cta-title">業務改革を加速する第一歩</h2>
+            <p class="cta-text">BiT-Flowで業務フローを「速く・安く・簡単に」可視化し、組織のデジタルトランスフォーメーションを加速させませんか？まずは無料相談から。</p>
+            
+            <div class="cta-buttons">
+                <a href="#contact" class="btn btn-primary">無料相談を申し込む</a>
+                <a href="#" class="btn btn-secondary btn-lg">資料をダウンロード</a>
+            </div>
+            
+            <div class="guarantee">
+                <div class="guarantee-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="guarantee-text">
+                    <strong>満足度保証</strong>
+                    作成した業務フローに満足いただけない場合は、無償で修正対応いたします。また、契約終了後から1か月間は業務フローの軽微な修正を無償でサポートいたします。
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- お問い合わせセクション -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <h2 class="contact-title">お問い合わせ</h2>
+            <p class="contact-subtitle">BiT-Flowについての詳細や導入に関するご質問は、お気軽にお問い合わせください。</p>
+            
+            <div class="contact-info-container">
+                <div class="contact-card">
+                    <div class="contact-card-icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <h3 class="contact-card-title">担当者</h3>
+                    <p class="contact-card-text">コンサルティング事業部 谷</p>
+                </div>
+                
+                <div class="contact-card">
+                    <div class="contact-card-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <h3 class="contact-card-title">連絡先</h3>
+                    <p class="contact-card-text">ryoichi.tani@bitcompany.jp</p>
+                </div>
+            </div>
+            
+            <div class="contact-cta">
+                <a href="mailto:ryoichi.tani@bitcompany.jp" class="btn btn-primary">メールでお問い合わせ</a>
+            </div>
+        </div>
+    </section>
+
+    
+    <!-- トップに戻るボタン -->
+    <div class="back-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+    
+    <!-- JavaScript -->
+    <script>
+        // スクロール時の演出
+        document.addEventListener('DOMContentLoaded', function() {
+            // スクロール時のアニメーション
+            function checkVisibility() {
+                const hiddenElements = document.querySelectorAll('.hidden');
+                const windowHeight = window.innerHeight;
+                
+                hiddenElements.forEach(element => {
+                    const elementTop = element.getBoundingClientRect().top;
+                    if (elementTop < windowHeight - 100) {
+                        element.classList.add('show');
+                    }
+                });
+                
+                // トップに戻るボタンの表示/非表示
+                const backToTopButton = document.querySelector('.back-to-top');
+                if (window.scrollY > 500) {
+                    backToTopButton.classList.add('show');
+                } else {
+                    backToTopButton.classList.remove('show');
+                }
+                
+                // ナビゲーションバーのスタイル変更
+                const navContainer = document.querySelector('.nav-container');
+                const navbar = document.querySelector('.navbar');
+                
+                if (window.scrollY > 100) {
+                    navContainer.classList.add('nav-scrolled');
+                    navbar.style.padding = '10px 0';
+                } else {
+                    navContainer.classList.remove('nav-scrolled');
+                    navbar.style.padding = '20px 0';
+                }
+            }
+            
+            // 初回実行
+            checkVisibility();
+            
+            // スクロール時に実行
+            window.addEventListener('scroll', checkVisibility);
+            
+            // FAQのトグル
+            const faqItems = document.querySelectorAll('.faq-item');
+            
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question');
+                
+                question.addEventListener('click', () => {
+                    item.classList.toggle('active');
+                });
+            });
+            
+            // トップに戻るボタン
+            const backToTopButton = document.querySelector('.back-to-top');
+            
+            backToTopButton.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // スムーススクロール
+            const links = document.querySelectorAll('a[href^="#"]');
+            
+            links.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        const offsetTop = targetElement.getBoundingClientRect().top + window.pageYOffset - 80;
+                        
+                        window.scrollTo({
+                            top: offsetTop,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
